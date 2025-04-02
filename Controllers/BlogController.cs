@@ -55,13 +55,13 @@ namespace BlogAPI.Controllers
             if (comment.Id != 0)
                 return BadRequest("Yorum oluştururken lütfen Id girmeyiniz.");
 
-            // İlişkiyi ayarla.
+            
             comment.CommentedAt = DateTime.Now;
             comment.Writing = writing;
 
             _context.Comments.Add(comment);
             _context.SaveChanges();
-            return Ok(comment);
+            return Ok(comment); 
         }
     }
 }
