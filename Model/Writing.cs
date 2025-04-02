@@ -1,4 +1,7 @@
-﻿namespace BlogAPI.Model
+﻿using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
+using System.Text.Json.Serialization;
+
+namespace BlogAPI.Model
 {
     public class Writing
     {
@@ -10,6 +13,8 @@
 
         public DateTime CreatedAt { get; set; } = DateTime.Now;
 
-        public List<Comment> Comments { get; set; } = new List<Comment>();
+        
+        [ValidateNever]
+        public List<Comment>? Comments { get; set; } = new List<Comment>();
     }
 }

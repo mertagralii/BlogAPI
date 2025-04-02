@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using BlogAPI.Model;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Hosting;
 
 namespace BlogAPI.Controllers
 {
@@ -32,29 +33,12 @@ namespace BlogAPI.Controllers
         [HttpPost("[action]")]
         public IActionResult CreateBlog([FromBody] Writing writing)
         {
-            if (writing == null)
-            {
-                return BadRequest("Yazı boş olamaz.");
-            }
-            if (writing.Id != 0)
-            {
-                return BadRequest("Yazı oluştururken lütfen Id girmeyiniz.");
-            }
-
-            // Yorumlar varsa, yazıya ait yorumları ilişkilendir.
-            if (writing.Comments != null && writing.Comments.Any())
-            {
-                foreach (var comment in writing.Comments)
-                {
-                    comment.CommentedAt = DateTime.Now; // Yorumların tarihini ayarla.
-                    // Yorumları yazıya ilişkilendir.
-                    comment.Writing = writing;
-                }
-            }
-
+            if (writing == null || writing.Id != 0)
+                return BadRequest("Geçersiz post verisi.");
+            writing.Comments = null;
             _context.Writings.Add(writing);
             _context.SaveChanges();
-            return Ok("Yazı oluşturuldu.");
+            return Ok(writing);
         }
 
         // Bir yazıya yorum eklenebilmeli.
@@ -62,26 +46,22 @@ namespace BlogAPI.Controllers
         public IActionResult CommentBlog([FromBody] Comment comment)
         {
             if (comment == null)
-            {
-                return BadRequest("Yorum boş olamaz.");
-            }
-            if (comment.Id != 0)
-            {
-                return BadRequest("Yorum oluştururken lütfen Id girmeyiniz.");
-            }
+                return BadRequest("Yorum verisi boş.");
 
-            comment.CommentedAt = DateTime.Now;
-
-            var writing = _context.Writings.SingleOrDefault(x => x.Id == comment.Writing.Id);
+            var writing = _context.Writings.FirstOrDefault(w => w.Id == comment.WritingId);
             if (writing == null)
-            {
                 return NotFound("Yorum eklemek istediğiniz yazı bulunamadı.");
-            }
 
-            // Yorumları yazıya ekle.
+            if (comment.Id != 0)
+                return BadRequest("Yorum oluştururken lütfen Id girmeyiniz.");
+
+            // İlişkiyi ayarla.
+            comment.CommentedAt = DateTime.Now;
+            comment.Writing = writing;
+
             _context.Comments.Add(comment);
             _context.SaveChanges();
-            return Ok("Yorum eklendi.");
+            return Ok(comment);
         }
     }
 }

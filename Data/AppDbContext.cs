@@ -9,7 +9,7 @@ namespace BlogAPI.Data
         {
             optionsBuilder.UseSqlServer("Server=MERT;Database=BlogAPI;Integrated Security=true;TrustServerCertificate=True");
         }
-         public DbSet<Writing> Writings { get; set; }
+        public DbSet<Writing> Writings { get; set; }
          public DbSet<Comment> Comments { get; set; }
     }
 }
